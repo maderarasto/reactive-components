@@ -4,3 +4,5 @@ new ReactiveApp({
   title: 'React Components',
   template: ''
 }).mount('#app');
+
+console.log(window.reactiveApp);
