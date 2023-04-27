@@ -11,19 +11,29 @@ function generateIdNumber(): string {
     return Math.floor(minId + (maxId - minId) * Math.random()).toString();
 }
 
+type ComponentClass = { 
+    new (
+        parentEl: HTMLElement,
+        name: string,
+        params: Data,
+    ): ReactiveComponent
+}
+
 interface AppOptions {
     title?: string,
-    template: string
+    rootComponentCls: ComponentClass
 };
 
 export default class ReactiveApp {
     private _title: string;
-    private _template: string;
+    private _rootComponentCls: ComponentClass;
+    private _rootComponent: ReactiveComponent | null;
     private _componentsIds: string[];
 
     constructor(options: AppOptions) {
         this._title = options?.title ?? 'Untitled';
-        this._template = options?.template ?? '';
+        this._rootComponentCls = options?.rootComponentCls;
+        this._rootComponent = null;
         this._componentsIds = [];
 
         window.reactiveApp = this;
@@ -36,8 +46,10 @@ export default class ReactiveApp {
             throw new Error('There is not root element with given selector!');
         }
 
+        this._rootComponent = new this._rootComponentCls(rootEl, this._rootComponentCls.name, {});
+        this._rootComponent.render();
+
         document.title = this._title;
-        rootEl.innerHTML = this._template;
     }
 
     registerComponentId(component: ReactiveComponent) {
@@ -63,16 +75,16 @@ export interface Data {
 }
 
 export abstract class ReactiveComponent {
-    private _parentSel: string;
-    private _id: string;
+    private _parentEl: HTMLElement;
+    //private _id: string;
     private _name: string;
     private _params: Data;
     private _data: Data;
     private _components: ReactiveComponent[];
 
-    constructor(parentSel: string, name: string, params: Data = {}) {
-        this._parentSel = parentSel;
-        this._id = window.reactiveApp.registerComponentId(this);
+    constructor(parentEl: HTMLElement, name: string, params: Data = {}) {
+        this._parentEl = parentEl;
+        //this._id = window.reactiveApp.registerComponentId(this);
         this._name = name;
         this._params = params;
         this._components = [];
@@ -101,10 +113,13 @@ export abstract class ReactiveComponent {
     }
 
     public render(): void {
-        const parentEl: HTMLElement = document.querySelector(this._parentSel) as HTMLElement;
-        // TODO: Empty parent container
+        const htmlDoc = new DOMParser().parseFromString(this._template(), 'text/html');
+        let elements: HTMLCollection = htmlDoc.body.children;
 
-        parentEl.innerHTML = this._id;
+        // let current = 0;
+        while (elements.length > 0) {
+            // const element: HTMLElement = elements.item(current) as HTMLElement;
+        }
 
         this._components.forEach((component: ReactiveComponent) => {
             component.render();

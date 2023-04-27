@@ -1,8 +1,7 @@
 import ReactiveApp from "./reactiveapp"
+import App from "./components/App";
 
 new ReactiveApp({
   title: 'React Components',
-  template: ''
-}).mount('#app');
-
-console.log(window.reactiveApp);
+  rootComponentCls: App
+}).mount('#app');``
