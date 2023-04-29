@@ -114,11 +114,25 @@ export abstract class ReactiveComponent {
 
     public render(): void {
         const htmlDoc = new DOMParser().parseFromString(this._template(), 'text/html');
-        let elements: HTMLCollection = htmlDoc.body.children;
+        const rootElements = htmlDoc.body.childNodes;
 
-        // let current = 0;
-        while (elements.length > 0) {
-            // const element: HTMLElement = elements.item(current) as HTMLElement;
+        if (rootElements.length === 0 && rootElements.length > 1) {
+            throw new Error('A component must have just one root element!');
+        }
+
+        let rootEl: HTMLElement;
+        let parentEl: HTMLElement | null = null;
+        let currentEl: HTMLElement | null = rootElements.item(0) as HTMLElement;
+        
+        while (currentEl) {
+            const element: HTMLElement = document.createElement(currentEl.localName) as HTMLElement;
+            
+            Object.keys(currentEl.attributes).forEach((attrKey: string) => {
+                const attr: Attr = currentEl?.attributes[attrKey];
+                element.setAttribute(attr.name, attr.value);
+            });
+            
+            currentEl = null;
         }
 
         this._components.forEach((component: ReactiveComponent) => {
