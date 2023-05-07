@@ -1,4 +1,5 @@
-import {Data, ReactiveComponent} from '../reactiveapp';
+import {ReactiveComponent} from '../reactiveapp';
+import { ReactiveData, ComponentClass } from '../types';
 
 export default class App extends ReactiveComponent {
     protected _template(): string {
@@ -9,16 +10,22 @@ export default class App extends ReactiveComponent {
         `;
     }
 
-    protected _initData(): Data {
+    protected _initData(): ReactiveData {
         return {
             header: 'Application'
         }
     }
 
-    protected _usedComponents(): ReactiveComponent[] {
+    protected _usedComponents(): ComponentClass[] {
         return [
 
         ];
     }
 
+    public afterMount(): void {
+        console.log('timeout');
+        setTimeout(() => {
+            this.data.header = 'New App'
+        }, 3000);
+    }
 }
